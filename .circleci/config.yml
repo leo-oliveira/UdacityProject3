@@ -20,8 +20,8 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - slack/status:
-          fail_only: true
+      - slack/notify:
+          event: fail
 
   build-backend:
     docker:
@@ -38,8 +38,8 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - slack/status:
-          fail_only: true
+      - slack/notify:
+          event: fail
 
 
   test-frontend:
@@ -53,8 +53,8 @@ jobs:
             cd frontend
             npm install
             npm run test
-      - slack/status:
-          fail_only: true
+      - slack/notify:
+          event: fail
 
   test-backend:
     docker:
@@ -67,8 +67,8 @@ jobs:
             cd backend
             npm install
             npm run test
-      - slack/status:
-          fail_only: true
+      - slack/notify:
+          event: fail
 
 
   scan-frontend:
@@ -82,8 +82,8 @@ jobs:
             cd frontend
             npm install
             npm audit fix --audit-level=critical --force
-      - slack/status:
-          fail_only: true
+      - slack/notify:
+          event: fail
 
 
   scan-backend:
@@ -97,8 +97,8 @@ jobs:
             cd backend
             npm install
             npm audit --audit-level=critical
-      - slack/status:
-          fail_only: true
+      - slack/notify:
+          event: fail
 
 
 
