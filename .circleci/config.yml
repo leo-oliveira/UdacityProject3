@@ -165,7 +165,7 @@ workflows:
           context:
             - Slack
           requires: [build-frontend]
-      - deploy-infrastructure
+      - deploy-infrastructure:
           context:
             - Slack
           requires: [scan-backend, scan-frontend]
