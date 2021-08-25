@@ -29,16 +29,17 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
-          name: Install dependencies
+          name: Back-end build
           command: |
-            cd backend
-            npm install
-      - run:
-          name: Compile the code
-          command: |
-            cd backend
-            npm run build
+             cd backend
+             npm install
+             npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
       - slack/notify:
           event: fail
           template: basic_fail_1
