@@ -145,6 +145,28 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
+configure-infrastructure:
+    docker:
+      - image: python:3.9.6-alpine3.14
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["7f:96:c6:1e:f4:36:29:65:f5:a7:01:1c:dc:b3:51:e9"]
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible nodejs npm
+            pip install awscli
+      - run:
+          name: Configure server
+          command: |
+            echo NODE_ENV=production >> "backend/.env"
+            cd ~/project/.circleci/ansible
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text >> inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+
 workflows:
   default:
     jobs:
