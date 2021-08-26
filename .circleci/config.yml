@@ -195,4 +195,7 @@ workflows:
       - deploy-infrastructure:
           context:
             - Slack
-          # requires: [scan-backend, scan-frontend]
+      - configure-infrastructure:
+          context:
+            - Slack
+          requires: [deploy-infrastructure]
