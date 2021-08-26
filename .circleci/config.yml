@@ -4,113 +4,114 @@ orbs:
   slack: circleci/slack@4.1
 
 jobs:
-  build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [frontend-build]
-      - run:
-          name: Build front-end
-          command: |
-            cd frontend
-            npm install
-            npm run build
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+  # build-frontend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys: [frontend-build]
+  #     - run:
+  #         name: Build front-end
+  #         command: |
+  #           cd frontend
+  #           npm install
+  #           npm run build
+  #     - save_cache:
+  #         paths: [frontend/node_modules]
+  #         key: frontend-build
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
 
-  build-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: Back-end build
-          command: |
-             cd backend
-             npm install
-             npm run build
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-
-
-  test-frontend:
-    docker:
-      - image: 'circleci/node:13.8.0'
-    steps:
-      - checkout
-      - run:
-          name: Test frontend
-          command: |
-            cd frontend
-            npm install
-            npm run test
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-
-  test-backend:
-    docker:
-      - image: 'circleci/node:13.8.0'
-    steps:
-      - checkout
-      - run:
-          name: Test backend
-          command: |
-            cd backend
-            npm install
-            npm run test
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+  # build-backend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - restore_cache:
+  #         keys: [backend-build]
+  #     - run:
+  #         name: Back-end build
+  #         command: |
+  #            cd backend
+  #            npm install
+  #            npm run build
+  #     - save_cache:
+  #         paths: [backend/node_modules]
+  #         key: backend-build
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
 
 
-  scan-frontend:
-    docker:
-      - image: 'circleci/node:13.8.0'
-    steps:
-      - checkout
-      - run:
-          name: Scan frontend
-          command: |
-            cd frontend
-            npm install
-            npm audit fix --audit-level=critical --force
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+  # test-frontend:
+  #   docker:
+  #     - image: 'circleci/node:13.8.0'
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Test frontend
+  #         command: |
+  #           cd frontend
+  #           npm install
+  #           npm run test
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
 
-  scan-backend:
-    docker:
-      - image: 'circleci/node:13.8.0'
-    steps:
-      - checkout
-      - run:
-          name: Scan backend
-          command: |
-            cd backend
-            npm install
-            npm audit fix --audit-level=critical --force
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+  # test-backend:
+  #   docker:
+  #     - image: 'circleci/node:13.8.0'
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Test backend
+  #         command: |
+  #           cd backend
+  #           npm install
+  #           npm run test
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
+
+
+  # scan-frontend:
+  #   docker:
+  #     - image: 'circleci/node:13.8.0'
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Scan frontend
+  #         command: |
+  #           cd frontend
+  #           npm install
+  #           npm audit fix --audit-level=critical --force
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
+
+  # scan-backend:
+  #   docker:
+  #     - image: 'circleci/node:13.8.0'
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Scan backend
+  #         command: |
+  #           cd backend
+  #           npm install
+  #           npm audit fix --audit-level=critical --force
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
 
   deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum -y install tar gzip jq npm
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -147,29 +148,29 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context:
-            - Slack
-      - build-backend:
-          context:
-            - Slack
-      - test-frontend:
-          context:
-            - Slack
-          requires: [build-frontend]
-      - test-backend:
-          context:
-            - Slack
-          requires: [build-backend]
-      - scan-backend:
-          context:
-            - Slack
-          requires: [build-backend]
-      - scan-frontend:
-          context:
-            - Slack
-          requires: [build-frontend]
+      # - build-frontend:
+      #     context:
+      #       - Slack
+      # - build-backend:
+      #     context:
+      #       - Slack
+      # - test-frontend:
+      #     context:
+      #       - Slack
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     context:
+      #       - Slack
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     context:
+      #       - Slack
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     context:
+      #       - Slack
+      #     requires: [build-frontend]
       - deploy-infrastructure:
           context:
             - Slack
-          requires: [scan-backend, scan-frontend]
+          # requires: [scan-backend, scan-frontend]
