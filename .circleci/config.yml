@@ -234,7 +234,7 @@ workflows:
           context:
             - Slack
           requires: [deploy-infrastructure]
-      - run-migrations
+      - run-migrations:
           context:
             - Slack
           requires: [configure-infrastructure]
