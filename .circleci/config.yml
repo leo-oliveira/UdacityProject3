@@ -219,23 +219,23 @@ jobs:
       # - revert-migrations
       # - destroy-environment
 
-  run-migrations:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get -y -qq update
-            sudo apt-get -y -qq install awscli
-      - run:
-          name: Run migrations
-          command: |
-            cd backend
-            npm i
-            npm run migrations:revert
-            npm run migrations >> output.txt
+  # run-migrations:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           sudo apt-get -y -qq update
+  #           sudo apt-get -y -qq install awscli
+  #     - run:
+  #         name: Run migrations
+  #         command: |
+  #           cd backend
+  #           npm i
+  #           npm run migrations:revert
+  #           npm run migrations >> output.txt
       # - run:
       #     name: Send migration results to memstash
       #     command: |
@@ -246,6 +246,33 @@ jobs:
       #           "token: 68de42c9-7df8-430d-b8b7-60e78adeb091" \
       #           --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       #       fi
+
+  run-migrations:
+    docker:
+      # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Run migrations
+          no_output_timeout: 10m
+          command: |
+            cd backend
+            echo ENVIROMENT=$ENVIROMENT > ".env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
+            npm install
+            touch migrations_log.txt
+            npm run migrations >> migrations_log.txt
+            cat migrations_log.txt
 
   deploy-frontend:
     docker:
