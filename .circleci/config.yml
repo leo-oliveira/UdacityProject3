@@ -396,7 +396,7 @@ workflows:
       #     context:
       #       - Slack
       #     requires: [build-frontend]
-      - deploy-infrastructure:
+      - deploy-infrastructure
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
