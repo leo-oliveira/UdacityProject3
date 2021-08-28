@@ -121,7 +121,7 @@ jobs:
               --stack-name "udapeople-backend-badd09fc-fdc4-4b82-bbab-63914ec69fe6" \
               --tags project=udapeople \
               --parameter-overrides ID="badd09fc-fdc4-4b82-bbab-63914ec69fe6"
-            PUBLICDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[0].PublicDnsName' --filters "Name=tag:Name,Values=backend-badd09fc-fdc4-4b82-bbab-63914ec69fe6" --output text)
+            PUBLICDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-badd09fc-fdc4-4b82-bbab-63914ec69fe6" --output text)
             echo ${PUBLICDNS}
             echo badd09fc-fdc4-4b82-bbab-63914ec69fe6
             curl -H "Content-Type: text/plain" -H "token: badd09fc-fdc4-4b82-bbab-63914ec69fe6" --request PUT --data ${PUBLICDNS} https://api.memstash.io/values/public_dns
@@ -139,7 +139,7 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[0].PublicDnsName' \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-badd09fc-fdc4-4b82-bbab-63914ec69fe6" \
               --output text >> .circleci/ansible/inventory.txt
               yum -y install tar gzip jq npm
