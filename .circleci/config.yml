@@ -199,7 +199,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully" "migration_log.log";
             then
-              curl -H "Content-Type: text/plain" -H "token: udapeople-migration_764468227672" --request PUT --data "1" https://api.memstash.io/values/migration_764468227672
+              curl -H "Content-Type: text/plain" -H "token: udapeople-migration-764468227672" --request PUT --data "1" https://api.memstash.io/values/migration_764468227672
             fi
 
 workflows:
