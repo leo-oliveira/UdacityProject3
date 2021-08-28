@@ -465,10 +465,10 @@ jobs:
       #         --use-previous-template \
       #         --stack-name udapeople \
       #         --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID},UsePreviousValue=false
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./lastFlow.txt
+      # - persist_to_workspace:
+      #     root: .
+      #     paths:
+      #       - ./lastFlow.txt
       # - destroy-environment
       # - revert-migrations
 
