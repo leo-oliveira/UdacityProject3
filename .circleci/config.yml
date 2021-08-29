@@ -31,107 +31,105 @@ commands:
             fi
 
 jobs:
-  # build-frontend:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         keys: [frontend-build]
-  #     - run:
-  #         name: Build front-end
-  #         command: |
-  #           cd frontend
-  #           npm install
-  #           npm run build
-  #     - save_cache:
-  #         paths: [frontend/node_modules]
-  #         key: frontend-build
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Build front-end
+          command: |
+            cd frontend
+            npm install
+            npm run build
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
-  # build-backend:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         keys: [backend-build]
-  #     - run:
-  #         name: Back-end build
-  #         command: |
-  #            cd backend
-  #            npm install
-  #            npm run build
-  #     - save_cache:
-  #         paths: [backend/node_modules]
-  #         key: backend-build
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
+  build-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Back-end build
+          command: |
+             cd backend
+             npm install
+             npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
+  test-frontend:
+    docker:
+      - image: 'circleci/node:13.8.0'
+    steps:
+      - checkout
+      - run:
+          name: Test frontend
+          command: |
+            cd frontend
+            npm install
+            npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
-  # test-frontend:
-  #   docker:
-  #     - image: 'circleci/node:13.8.0'
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Test frontend
-  #         command: |
-  #           cd frontend
-  #           npm install
-  #           npm run test
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
+  test-backend:
+    docker:
+      - image: 'circleci/node:13.8.0'
+    steps:
+      - checkout
+      - run:
+          name: Test backend
+          command: |
+            cd backend
+            npm install
+            npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
-  # test-backend:
-  #   docker:
-  #     - image: 'circleci/node:13.8.0'
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Test backend
-  #         command: |
-  #           cd backend
-  #           npm install
-  #           npm run test
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
+  scan-frontend:
+    docker:
+      - image: 'circleci/node:13.8.0'
+    steps:
+      - checkout
+      - run:
+          name: Scan frontend
+          command: |
+            cd frontend
+            npm install
+            npm audit fix --audit-level=critical --force
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
-
-  # scan-frontend:
-  #   docker:
-  #     - image: 'circleci/node:13.8.0'
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Scan frontend
-  #         command: |
-  #           cd frontend
-  #           npm install
-  #           npm audit fix --audit-level=critical --force
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
-
-  # scan-backend:
-  #   docker:
-  #     - image: 'circleci/node:13.8.0'
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Scan backend
-  #         command: |
-  #           cd backend
-  #           npm install
-  #           npm audit fix --audit-level=critical --force
-  #     - slack/notify:
-  #         event: fail
-  #         template: basic_fail_1
+  scan-backend:
+    docker:
+      - image: 'circleci/node:13.8.0'
+    steps:
+      - checkout
+      - run:
+          name: Scan backend
+          command: |
+            cd backend
+            npm install
+            npm audit fix --audit-level=critical --force
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   deploy-infrastructure:
     docker:
@@ -175,7 +173,7 @@ jobs:
           root: .
           paths:
             - .circleci/ansible
-      # - destroy-environment
+      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -211,7 +209,7 @@ jobs:
           command: |
             cat ".circleci/ansible/inventory.txt"
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      # - destroy-environment
+      - destroy-environment
 
   # run-migrations:
   #   docker:
@@ -333,9 +331,8 @@ jobs:
             npm run build
             aws s3 sync ./dist s3://"udapeople-${CIRCLE_WORKFLOW_ID}"
       # Here's where you will add some code to rollback on failure
-      # - revert-migrations
-      # - destroy-environment
-
+      - revert-migrations
+      - destroy-environment
 
   deploy-backend:
     docker:
@@ -368,8 +365,9 @@ jobs:
           name: Deploy backend
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-      # - revert-migrations
-      # - destroy-environment
+      - revert-migrations
+      - destroy-environment
+
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
@@ -449,28 +447,8 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             fi
-      # - run:
-      #     name: Retrieve old stack workflow ID
-      #     command: |
-      #       pwd
-      #       echo > lastFlow.txt
-      #       aws cloudformation list-exports \
-      #         --query "Exports[?Name==\`WorkflowID\`].Value" \
-      #         --no-paginate \
-      #         --output text >> lastFlow.txt
-      # - run:
-      #     name: Update cloudfront distribution
-      #     command: |
-      #       aws cloudformation update-stack \
-      #         --use-previous-template \
-      #         --stack-name udapeople \
-      #         --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID},UsePreviousValue=false
-      # - persist_to_workspace:
-      #     root: .
-      #     paths:
-      #       - ./lastFlow.txt
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
   cleanup:
     docker:
@@ -485,6 +463,8 @@ jobs:
               --no-paginate --output text)
             export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+
+            echo Old Worflow Id: "${OldWorkflowID}"
       - run:
           name: Remove old stacks and files
           command: |
