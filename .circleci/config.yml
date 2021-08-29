@@ -472,34 +472,109 @@ jobs:
       # - destroy-environment
       # - revert-migrations
 
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
+              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+              aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
+            fi
+
+# workflows:
+#   default:
+#     jobs:
+#       # - build-frontend:
+#       #     context:
+#       #       - Slack
+#       # - build-backend:
+#       #     context:
+#       #       - Slack
+#       # - test-frontend:
+#       #     context:
+#       #       - Slack
+#       #     requires: [build-frontend]
+#       # - test-backend:
+#       #     context:
+#       #       - Slack
+#       #     requires: [build-backend]
+#       # - scan-backend:
+#       #     context:
+#       #       - Slack
+#       #     requires: [build-backend]
+#       # - scan-frontend:
+#       #     context:
+#       #       - Slack
+#       #     requires: [build-frontend]
+#       - deploy-infrastructure:
+#           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+#           filters:
+#             branches:
+#               only: [test]
+#       - configure-infrastructure:
+#           requires: [deploy-infrastructure]
+#           filters:
+#             branches:
+#               only: [test]
+#       # - run-migrations:
+#       #     requires: [configure-infrastructure]
+#       #     filters:
+#       #       branches:
+#       #         only: [test]
+#       - deploy-frontend:
+#           # requires: [run-migrations]
+#           requires: [configure-infrastructure]
+#           filters:
+#             branches:
+#               only: [test]
+#       - deploy-backend:
+#           # requires: [run-migrations]
+#           requires: [configure-infrastructure]
+#           filters:
+#             branches:
+#               only: [test]
+#       - smoke-test:
+#           requires: [deploy-backend, deploy-frontend]
+#           filters:
+#             branches:
+#               only: [test]
+#       - cloudfront-update:
+#           requires: [smoke-test]
+#           filters:
+#             branches:
+#               only: [test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
 
 workflows:
   default:
     jobs:
-      # - build-frontend:
-      #     context:
-      #       - Slack
-      # - build-backend:
-      #     context:
-      #       - Slack
-      # - test-frontend:
-      #     context:
-      #       - Slack
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     context:
-      #       - Slack
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     context:
-      #       - Slack
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     context:
-      #       - Slack
-      #     requires: [build-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       - deploy-infrastructure:
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [test]
@@ -512,7 +587,7 @@ workflows:
       #     requires: [configure-infrastructure]
       #     filters:
       #       branches:
-      #         only: [test]
+      #         only: [main]
       - deploy-frontend:
           # requires: [run-migrations]
           requires: [configure-infrastructure]
@@ -535,5 +610,8 @@ workflows:
           filters:
             branches:
               only: [test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
+          filters:
+            branches:
+              only: [test]
