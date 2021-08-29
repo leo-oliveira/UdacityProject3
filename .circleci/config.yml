@@ -508,20 +508,20 @@ workflows:
           filters:
             branches:
               only: [test]
-      - run-migrations:
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      #     filters:
+      #       branches:
+      #         only: [test]
+      - deploy-frontend:
+          # requires: [run-migrations]
           requires: [configure-infrastructure]
           filters:
             branches:
               only: [test]
-      - deploy-frontend:
-          requires: [run-migrations]
-          # requires: [configure-infrastructure]
-          filters:
-            branches:
-              only: [test]
       - deploy-backend:
-          requires: [run-migrations]
-          # requires: [configure-infrastructure]
+          # requires: [run-migrations]
+          requires: [configure-infrastructure]
           filters:
             branches:
               only: [test]
